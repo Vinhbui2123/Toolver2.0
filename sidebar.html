@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="UTF-8">
+   <style>
+      * {
+         margin: 0;
+         padding: 0;
+         box-sizing: border-box;
+      }
+
+      body {
+         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+         height: 100vh;
+         display: flex;
+         flex-direction: column;
+         background: #f5f5f5;
+         font-size: 13px;
+      }
+
+      .header {
+         background: linear-gradient(135deg, #FF9800, #FFC107);
+         color: white;
+         padding: 12px 15px;
+         text-align: center;
+      }
+
+      .header h2 {
+         font-size: 16px;
+         font-weight: 600;
+      }
+
+      .tabs {
+         display: flex;
+         gap: 0;
+         background: white;
+         border-bottom: 2px solid #ddd;
+         padding: 0 12px;
+      }
+
+      .tab-btn {
+         padding: 12px 16px;
+         background: transparent;
+         border: none;
+         cursor: pointer;
+         font-size: 13px;
+         font-weight: 500;
+         color: #666;
+         border-bottom: 3px solid transparent;
+         transition: all 0.2s;
+      }
+
+      .tab-btn:hover {
+         color: #333;
+      }
+
+      .tab-btn.active {
+         color: #FF9800;
+         border-bottom-color: #FF9800;
+      }
+
+      .tab-content {
+         display: none;
+         flex: 1;
+         overflow-y: auto;
+         padding: 12px;
+      }
+
+      .tab-content.active {
+         display: block;
+      }
+
+      .container {
+         flex: 1;
+         padding: 12px;
+         overflow-y: auto;
+      }
+
+      .drop-zone {
+         border: 2px dashed #ccc;
+         border-radius: 6px;
+         padding: 20px 15px;
+         text-align: center;
+         background: white;
+         cursor: pointer;
+         transition: all 0.3s;
+         margin-bottom: 12px;
+      }
+
+      .drop-zone:hover {
+         border-color: #FF9800;
+         background: #fff8f0;
+      }
+
+      .drop-zone.drag-over {
+         border-color: #FF9800;
+         background: #ffe0b2;
+      }
+
+      .drop-zone-icon {
+         font-size: 32px;
+         margin-bottom: 6px;
+      }
+
+      .drop-zone-text {
+         color: #666;
+         font-size: 13px;
+         margin-bottom: 4px;
+      }
+
+      .drop-zone-hint {
+         color: #999;
+         font-size: 11px;
+      }
+
+      .file-section {
+         display: flex;
+         gap: 8px;
+         margin-bottom: 12px;
+      }
+
+      .drop-zone-wrapper {
+         flex: 1;
+         position: relative;
+      }
+
+      .drop-zone {
+         border: 2px dashed #ccc;
+         border-radius: 6px;
+         padding: 20px 15px;
+         text-align: center;
+         background: white;
+         cursor: pointer;
+         transition: all 0.3s;
+         margin-bottom: 0;
+         position: relative;
+      }
+
+      .drop-zone.has-file {
+         border-color: #4CAF50;
+         background: #f0f9f0;
+      }
+
+      .btn-clear-file {
+         position: absolute;
+         top: 8px;
+         right: 8px;
+         width: 32px;
+         height: 32px;
+         padding: 0;
+         color: #f44336;
+         background: transparent;
+         border: none;
+         border-radius: 50%;
+         font-size: 16px;
+         cursor: pointer;
+         transition: all 0.2s;
+         display: none;
+         align-items: center;
+         justify-content: center;
+         z-index: 10;
+      }
+
+      .btn-clear-file.show {
+         display: flex;
+      }
+
+      .btn-clear-file:hover {
+         color: #d32f2f;
+         transform: scale(1.1);
+      }
+
+      #resetDataBtn {
+         background: transparent;
+         color: #666;
+         right: 40px;
+      }
+
+      #resetDataBtn:hover {
+         background: transparent;
+         color: #333;
+         transform: scale(1.1);
+      }
+
+      .file-info-inline {
+         margin-top: 8px;
+         padding-top: 8px;
+         border-top: 1px solid #ddd;
+      }
+
+      .file-name-inline {
+         font-weight: 600;
+         color: #333;
+         font-size: 12px;
+         word-break: break-all;
+         margin-bottom: 4px;
+      }
+
+      .file-size-inline {
+         color: #666;
+         font-size: 11px;
+      }
+
+      .file-input {
+         display: none;
+      }
+
+      .file-info {
+         background: white;
+         padding: 10px;
+         border-radius: 6px;
+         margin-bottom: 10px;
+         display: none;
+         font-size: 12px;
+      }
+
+      .file-info.show {
+         display: block;
+      }
+
+      .file-name {
+         font-weight: 600;
+         color: #333;
+         margin-bottom: 4px;
+         word-break: break-all;
+      }
+
+      .file-size {
+         color: #666;
+         font-size: 11px;
+      }
+
+      .info-box {
+         background: white;
+         padding: 10px;
+         border-radius: 6px;
+         margin-bottom: 10px;
+      }
+
+      .info-box label {
+         display: block;
+         margin-bottom: 4px;
+         color: #666;
+         font-size: 11px;
+         font-weight: 600;
+      }
+
+      .info-box textarea {
+         width: 100%;
+         padding: 8px;
+         border: 1px solid #ddd;
+         border-radius: 4px;
+         font-size: 12px;
+         min-height: 100px;
+         resize: vertical;
+         font-family: inherit;
+      }
+
+      .info-box input {
+         width: 100%;
+         padding: 6px 8px;
+         border: 1px solid #ddd;
+         border-radius: 4px;
+         font-size: 12px;
+         margin-bottom: 8px;
+      }
+
+      .info-box input:last-child {
+         margin-bottom: 0;
+      }
+
+      .hint {
+         margin-top: 4px;
+         font-size: 10px;
+         color: #999;
+      }
+
+      .btn {
+         flex: 1;
+         padding: 10px 8px;
+         color: white;
+         border: none;
+         border-radius: 6px;
+         font-size: 12px;
+         font-weight: 600;
+         cursor: pointer;
+         transition: all 0.2s;
+         margin-bottom: 0;
+      }
+
+      .btn-row {
+         display: flex;
+         gap: 8px;
+         margin-bottom: 12px;
+      }
+
+      .btn-full {
+         width: 100%;
+         padding: 10px;
+         color: white;
+         border: none;
+         border-radius: 6px;
+         font-size: 13px;
+         font-weight: 600;
+         cursor: pointer;
+         transition: all 0.2s;
+         margin-bottom: 12px;
+      }
+
+      .btn-full:hover {
+         transform: translateY(-1px);
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .btn:hover:not(:disabled) {
+         transform: translateY(-1px);
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .btn:disabled {
+         opacity: 0.5;
+         cursor: not-allowed;
+      }
+
+      .btn-orange {
+         background: #FF9800;
+      }
+
+      .btn-orange:hover:not(:disabled) {
+         background: #F57C00;
+      }
+
+      .btn-blue {
+         background: #2196F3;
+      }
+
+      .btn-blue:hover:not(:disabled) {
+         background: #1976D2;
+      }
+
+      .btn-green {
+         background: linear-gradient(135deg, #FF9800, #FFC107);
+      }
+
+      .btn-green:hover:not(:disabled) {
+         background: linear-gradient(135deg, #F57C00, #FFA000);
+      }
+
+      .btn-red {
+         background: #f44336;
+      }
+
+      .btn-red:hover:not(:disabled) {
+         background: #d32f2f;
+      }
+
+      #status {
+         padding: 8px 12px;
+         border-radius: 8px;
+         display: none;
+         text-align: center;
+         font-size: 11px;
+         font-weight: 600;
+         margin-top: 12px;
+      }
+
+      #status.show {
+         display: block;
+      }
+
+      .success {
+         background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+         color: #22543d;
+         border: 1.5px solid #48bb78;
+         animation: bounceIn 0.5s ease;
+         box-shadow: 0 3px 10px rgba(72, 187, 120, 0.3);
+      }
+
+      .error {
+         background: linear-gradient(135deg, #fed7d7 0%, #fc8181 100%);
+         color: #742a2a;
+         border: 1.5px solid #e53e3e;
+         animation: shake 0.5s ease;
+         box-shadow: 0 3px 10px rgba(229, 62, 62, 0.3);
+      }
+
+      @keyframes bounceIn {
+         0% {
+            transform: scale(0.3);
+            opacity: 0;
+         }
+
+         50% {
+            transform: scale(1.05);
+         }
+
+         70% {
+            transform: scale(0.9);
+         }
+
+         100% {
+            transform: scale(1);
+            opacity: 1;
+         }
+      }
+
+      @keyframes shake {
+
+         0%,
+         100% {
+            transform: translateX(0);
+         }
+
+         10%,
+         30%,
+         50%,
+         70%,
+         90% {
+            transform: translateX(-5px);
+         }
+
+         20%,
+         40%,
+         60%,
+         80% {
+            transform: translateX(5px);
+         }
+      }
+
+      /* glow animation removed for performance */
+      /* Message styles */
+      #message {
+         margin-top: 8px;
+         padding: 8px 12px;
+         border-radius: 8px;
+         font-size: 11px;
+         font-weight: 600;
+         text-align: center;
+         display: none;
+      }
+
+      #message.show {
+         display: block;
+      }
+
+      #message.success {
+         background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+         color: #22543d;
+         border: 1.5px solid #48bb78;
+         animation: bounceIn 0.5s ease;
+         box-shadow: 0 3px 10px rgba(72, 187, 120, 0.3);
+      }
+
+      #message.error {
+         background: linear-gradient(135deg, #fed7d7 0%, #fc8181 100%);
+         color: #742a2a;
+         border: 1.5px solid #e53e3e;
+         animation: shake 0.5s ease;
+         box-shadow: 0 3px 10px rgba(229, 62, 62, 0.3);
+      }
+
+      #message.info {
+         background: linear-gradient(135deg, #bee3f8 0%, #90cdf4 100%);
+         color: #2a4365;
+         border: 1.5px solid #4299e1;
+         animation: bounceIn 0.5s ease;
+         box-shadow: 0 3px 10px rgba(66, 153, 225, 0.3);
+      }
+
+      #message.warning {
+         background: linear-gradient(135deg, #fefcbf 0%, #faf089 100%);
+         color: #744210;
+         border: 1.5px solid #ecc94b;
+         animation: bounceIn 0.5s ease;
+         box-shadow: 0 3px 10px rgba(236, 201, 75, 0.3);
+      }
+
+      .settings-section {
+         margin-top: 12px;
+         margin-bottom: 12px;
+      }
+
+      .btn-settings {
+         width: 100%;
+         padding: 8px;
+         background: #607D8B;
+         color: white;
+         border: none;
+         border-radius: 6px;
+         font-size: 12px;
+         font-weight: 600;
+         cursor: pointer;
+         transition: all 0.2s;
+      }
+
+      .btn-settings:hover {
+         background: #455A64;
+      }
+
+      .settings-panel {
+         display: none;
+         background: white;
+         padding: 12px;
+         border-radius: 6px;
+         margin-top: 8px;
+      }
+
+      .settings-panel.show {
+         display: block;
+      }
+
+      .settings-item {
+         margin-bottom: 12px;
+      }
+
+      .settings-item:last-of-type {
+         margin-bottom: 0;
+      }
+
+      .settings-item label {
+         display: block;
+         margin-bottom: 4px;
+         color: #666;
+         font-size: 11px;
+         font-weight: 600;
+      }
+
+      .settings-item input {
+         width: 100%;
+         padding: 6px 8px;
+         border: 1px solid #ddd;
+         border-radius: 4px;
+         font-size: 12px;
+      }
+
+      .btn-save {
+         width: 100%;
+         padding: 8px;
+         background: #4CAF50;
+         color: white;
+         border: none;
+         border-radius: 6px;
+         font-size: 12px;
+         font-weight: 600;
+         cursor: pointer;
+         margin-top: 12px;
+      }
+
+      .btn-save:hover {
+         background: #388E3C;
+      }
+
+      /* Notification Popup */
+      .notification-overlay {
+         position: fixed;
+         top: 0;
+         left: 0;
+         right: 0;
+         bottom: 0;
+         background: rgba(0, 0, 0, 0.5);
+         display: none;
+         align-items: center;
+         justify-content: center;
+         z-index: 1000;
+      }
+
+      .notification-overlay.show {
+         display: flex;
+      }
+
+      .notification-popup {
+         background: white;
+         border-radius: 16px;
+         padding: 24px;
+         width: 90%;
+         max-width: 400px;
+         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .notification-header {
+         display: flex;
+         align-items: center;
+         gap: 12px;
+         margin-bottom: 16px;
+      }
+
+      .notification-icon {
+         width: 48px;
+         height: 48px;
+         background: linear-gradient(135deg, #667eea, #764ba2);
+         border-radius: 12px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-size: 24px;
+      }
+
+      .notification-title {
+         flex: 1;
+      }
+
+      .notification-title h3 {
+         font-size: 18px;
+         font-weight: 600;
+         color: #333;
+         margin-bottom: 4px;
+      }
+
+      .notification-title p {
+         font-size: 12px;
+         color: #999;
+         margin: 0;
+      }
+
+      .notification-close {
+         width: 32px;
+         height: 32px;
+         border: none;
+         background: #f0f0f0;
+         border-radius: 8px;
+         cursor: pointer;
+         font-size: 18px;
+         color: #666;
+      }
+
+      .notification-close:hover {
+         background: #e0e0e0;
+      }
+
+      .notification-progress {
+         width: 100%;
+         height: 6px;
+         background: #e0e0e0;
+         border-radius: 3px;
+         overflow: hidden;
+         margin-bottom: 16px;
+      }
+
+      .notification-progress-bar {
+         height: 100%;
+         background: linear-gradient(90deg, #667eea, #764ba2);
+         width: 0%;
+         transition: width 0.3s ease;
+      }
+
+      .notification-steps {
+         display: flex;
+         flex-direction: column;
+         gap: 8px;
+      }
+
+      .notification-step {
+         display: flex;
+         align-items: center;
+         gap: 12px;
+         padding: 12px;
+         background: #f5f5f5;
+         border-radius: 8px;
+         border-left: 4px solid #e0e0e0;
+         transition: all 0.3s ease;
+      }
+
+      .notification-step.active {
+         background: #e3f2fd;
+         border-left-color: #2196F3;
+      }
+
+      .notification-step.completed {
+         background: #e8f5e9;
+         border-left-color: #4CAF50;
+      }
+
+      .notification-step-icon {
+         width: 32px;
+         height: 32px;
+         border-radius: 8px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-size: 16px;
+         background: white;
+      }
+
+      .notification-step.completed .notification-step-icon {
+         background: #4CAF50;
+         color: white;
+      }
+
+      .notification-step.active .notification-step-icon {
+         background: #2196F3;
+         color: white;
+         animation: pulse 1.5s infinite;
+      }
+
+      .notification-step-text {
+         flex: 1;
+         font-size: 13px;
+         font-weight: 500;
+         color: #666;
+      }
+
+      .notification-step.completed .notification-step-text {
+         color: #4CAF50;
+      }
+
+      .notification-step.active .notification-step-text {
+         color: #2196F3;
+      }
+
+      @keyframes pulse {
+
+         0%,
+         100% {
+            transform: scale(1);
+         }
+
+         50% {
+            transform: scale(1.1);
+         }
+      }
+
+      /* pulse-glow animation removed for performance */
+      /* Progress bar */
+      .progress-container {
+         width: 100%;
+         height: 4px;
+         background: #e2e8f0;
+         border-radius: 2px;
+         margin-top: 10px;
+         overflow: hidden;
+         display: none;
+      }
+
+      .progress-container.show {
+         display: block;
+      }
+
+      .progress-bar {
+         height: 100%;
+         background: linear-gradient(90deg, #667eea, #764ba2);
+         border-radius: 2px;
+         width: 0%;
+         transition: width 0.3s ease;
+      }
+
+      /* Tooltip */
+      button[title] {
+         position: relative;
+      }
+
+      button[title]:hover::after {
+         content: attr(title);
+         position: absolute;
+         bottom: 100%;
+         left: 50%;
+         transform: translateX(-50%);
+         background: #333;
+         color: white;
+         padding: 6px 10px;
+         border-radius: 4px;
+         font-size: 11px;
+         font-weight: 500;
+         white-space: nowrap;
+         margin-bottom: 8px;
+         z-index: 100;
+      }
+
+      button[title]:hover::before {
+         content: '';
+         position: absolute;
+         bottom: 100%;
+         left: 50%;
+         transform: translateX(-50%);
+         border: 5px solid transparent;
+         border-top-color: #333;
+         margin-bottom: -2px;
+         z-index: 100;
+      }
+   </style>
+</head>
+
+<body>
+   <div class="header">
+      <h2>📤 Auto & Fill GPT</h2>
+   </div>
+   <div class="tabs">
+      <button class="tab-btn active" data-tab="data">📊 Data</button>
+      <button class="tab-btn" data-tab="mail">📧 Mail</button>
+      <button class="tab-btn" data-tab="note">📝 Note</button>
+   </div>
+   <div class="tab-content active" id="data-tab">
+
+      <div class="file-section"></div>
+      <div class="drop-zone-wrapper">
+         <div class="drop-zone" id="dropZone">
+            <button class="btn-clear-file" id="clearFileBtn">✕</button>
+            <button class="btn-clear-file" id="resetDataBtn" style="right: 40px;">🔄</button>
+            <div class="drop-zone-icon">📁</div>
+            <div class="drop-zone-text">Kéo thả file</div>
+            <div class="drop-zone-hint">hoặc click / Ctrl+V</div>
+            <div class="file-info-inline" id="fileInfoInline" style="display: none;">
+               <div class="file-name-inline" id="fileNameInline"></div>
+               <div class="file-size-inline" id="fileSizeInline"></div>
+            </div>
+         </div>
+      </div>
+      <input type="file" id="fileInput" class="file-input" />
+      <div class="info-box">
+         <label>📊 Chọn file Excel:</label>
+         <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display: none;" />
+         <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+            <input type="number" id="rowNumber" placeholder="Số dòng" min="1" value="2"
+               style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+            <button class="btn" id="prevBtn" style="flex: 0.5; background: #FF9800; padding: 8px 6px;">➖</button>
+            <button class="btn" id="nextBtn" style="flex: 0.5; background: #4CAF50; padding: 8px 6px;">➕</button>
+         </div>
+         <div style="display: flex; gap: 8px;">
+            <button class="btn-full btn-blue" id="autoBtn" style="flex: 1;">🤖 Auto</button>
+            <button class="btn-full btn-red" id="stopBtn" style="flex: 1; display: none;">⏹️ Stop</button>
+            <button class="btn-full btn-orange" id="loadExcelBtn" style="flex: 1;">📥 Load data</button>
+         </div>
+         <div id="status"></div>
+         <div id="message"></div>
+      </div>
+      <div class="info-box">
+         <label>🎖️ Military Status:</label>
+         <select id="militaryStatusSelect"
+            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+            <option value="">-- Chọn Military Status --</option>
+            <!-- <option value="Active Duty">Active Duty</option> -->
+            <option value="Military Veteran or Retiree">Military Veteran or Retiree</option>
+            <option value="Reservist or National Guard" selected>Reservist or National Guard</option>
+         </select>
+      </div>
+      <div class="info-box">
+         <label>📧 Email:</label>
+         <div style="display: flex; gap: 2px; align-items: center;">
+            <input type="email" id="emailInput" placeholder="example@email.com" style="flex: 1;" />
+            <button id="randomEmailBtn"
+               style="flex: 0.05; background: transparent; border: none; font-size: 16px; cursor: pointer; padding: 2px 2px; position: relative;"
+               title="Random Email">🎲</button>
+            <button id="emailSettingsBtn"
+               style="flex: 0.05; background: transparent; border: none; font-size: 16px; cursor: pointer; padding: 2px 2px; position: relative;"
+               title="Email Settings">⚙️</button>
+         </div>
+         <div class="settings-panel" id="emailSettingsPanel">
+            <div class="settings-item">
+               <label>Email Domain:</label>
+               <input type="text" id="emailDomainSetting" placeholder="email@example.com" />
+            </div>
+            <div class="settings-item">
+               <label>Email Prefix:</label>
+               <input type="text" id="emailPrefixSetting" placeholder="user" />
+            </div>
+            <button class="btn-save" id="saveEmailSettingsBtn">💾 Save Settings</button>
+         </div>
+      </div>
+      <div class="info-box">
+         <label>📅 Birthdate (M/D/YYYY):</label>
+         <input type="text" id="birthdateInput" placeholder="1/15/1990" />
+      </div>
+      <div class="info-box">
+         <label>📅 Discharge Date (M/D/YYYY):</label>
+         <input type="text" id="dischargeDateInput" placeholder="7/22/2025" />
+      </div>
+      <div class="info-box">
+         <label>🎖️ Branch of Service:</label>
+         <input type="text" id="branchOfServiceInput" placeholder="Army Reserve" />
+      </div>
+      <div class="info-box">
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label style="margin: 0;">📝 Nhập dữ liệu mẫu (mỗi dòng 1 giá trị):</label>
+            <button id="generateDataBtn"
+               style="background: transparent; border: none; font-size: 16px; cursor: pointer;">🎲</button>
+         </div>
+         <textarea id="dataInput" style="min-height: 200px;"
+            placeholder="John&#10;Doe&#10;1/15/1990&#10;7/22/2025&#10;john.doe@example.com&#10;Army Reserve"></textarea>
+         <div class="hint">Dòng 1: First Name | Dòng 2: Last Name | Dòng 3: Birthdate (M/D/YYYY) | Dòng 4: Discharge
+            Date (M/D/YYYY) | Dòng 5: Email | Dòng 6: Branch of Service</div>
+      </div>
+   </div>
+   <div class="tab-content" id="mail-tab">
+      <div class="info-box">
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label>📧 Đọc Email từ API:</label>
+            <button class="btn-full btn-red" id="clearMailBtn"
+               style="width: 32px; height: 32px; margin-bottom: 0; padding: 0; font-size: 14px; display: flex; align-items: center; justify-content: center;">✕</button>
+         </div>
+         <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <input type="text" id="mailDomain" placeholder="email@example.com"
+               style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;" />
+            <button class="btn-full btn-blue" id="fetchMailBtn"
+               style="width: 32px; height: 32px; margin-bottom: 0; padding: 0; font-size: 14px; display: flex; align-items: center; justify-content: center;">🔄</button>
+            <button class="btn-full btn-blue" id="openMailUrlBtn"
+               style="width: 32px; height: 32px; margin-bottom: 0; padding: 0; font-size: 14px; display: flex; align-items: center; justify-content: center;"
+               title="Open Mail URL">🌐</button>
+         </div>
+         <div id="mailStatus"></div>
+         <div id="mailList" style="margin-top: 12px;"></div>
+      </div>
+   </div>
+   <div class="tab-content" id="note-tab">
+      <div class="info-box">
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label style="margin: 0;">📋 Row History:</label>
+            <button id="clearRowHistoryBtn"
+               style="background: transparent; border: none; font-size: 14px; cursor: pointer; padding: 4px 8px; color: #f44336;"
+               title="Clear History">✕</button>
+         </div>
+         <textarea id="rowHistoryInput" placeholder="Row history will appear here..."
+            style="min-height: 80px; background: #f9f9f9; color: #666;" readonly></textarea>
+      </div>
+      <div class="info-box">
+         <label>📝 Note:</label>
+         <textarea id="noteInput" placeholder="Ghi chú của bạn..." style="min-height: 400px;"></textarea>
+      </div>
+
+   </div>
+   <script src="xlsx.full.min.js"></script>
+   <script src="sidebar.js"></script>
+</body>
+
+</html>
